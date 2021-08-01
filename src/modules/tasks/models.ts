@@ -1,9 +1,18 @@
 import mongoose, { HookNextFunction, Schema } from 'mongoose'
 
 import { BaseModelSchema } from '../../global/Models'
-import { IComment, ITag, ITask, ITaskDocument, ITaskModel } from './types/Tasks.types'
+import {
+  IComment,
+  ITag,
+  ITask,
+  ITaskDocument,
+  ITaskListDocument,
+  ITaskListModel,
+  ITaskModel,
+} from './types/Tasks.types'
 
 import { extend, getModelUID } from '../../global/utils'
+import { TaskListOwnerTypes } from './constants'
 
 const CommentSchema = extend(BaseModelSchema, {
   uid: {
@@ -51,6 +60,7 @@ const TaskSchema = new Schema<ITaskDocument, ITaskModel>(
       required: [true, 'A task must have a title'],
     },
     description: String,
+    currentStatus: String,
     assignee: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -87,6 +97,10 @@ const TaskSchema = new Schema<ITaskDocument, ITaskModel>(
         ref: 'User',
       },
     ],
+    taskList: {
+      type: Schema.Types.ObjectId,
+      ref: 'TaskList',
+    },
   },
   {
     timestamps: true,
@@ -94,12 +108,46 @@ const TaskSchema = new Schema<ITaskDocument, ITaskModel>(
 )
 
 TaskSchema.pre<ITaskDocument>('save', async function (next: HookNextFunction) {
-  await this.populate('creator')
+  const taskListDoc: ITaskListDocument = await TaskList.findById(this.taskList._id)
+  this.currentStatus = taskListDoc?.title
   next()
+})
+
+const TaskListSchema: Schema = new Schema<ITaskListDocument, ITaskListModel>({
+  ...BaseModelSchema.obj,
+  uid: {
+    type: String,
+    auto: true,
+    unique: true,
+    default: () => {
+      return getModelUID('task_list')
+    },
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  owner: {
+    type: String,
+    required: true,
+  },
+  ownerType: {
+    type: String,
+    enum: [TaskListOwnerTypes.INDIVIDUAL, TaskListOwnerTypes.ORGANIZATION],
+    required: true,
+  },
+  showOnBoard: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 export const Comment = mongoose.model<IComment>('Comment', CommentSchema)
 export const Tag = mongoose.model<ITag>('Tag', TagSchema)
 export const Task = mongoose.model<ITaskDocument, ITaskModel>('Task', TaskSchema)
+export const TaskList = mongoose.model<ITaskListDocument, ITaskListModel>(
+  'TaskList',
+  TaskListSchema
+)
 
 // https://stackoverflow.com/questions/34985846/mongoose-document-references-with-a-one-to-many-relationship

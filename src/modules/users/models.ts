@@ -1,7 +1,38 @@
 import { model, Schema, HookNextFunction } from 'mongoose'
+import { BaseModelSchema } from 'src/global/Models'
 
 import { getModelUID, hashPassword, comparePassword, createToken } from '../../global/utils'
-import { IUserDocument, IUserModel } from './types/user'
+import { UserTypes } from './constants'
+import { IInvitedUserDocument, IInvitedUserModel, IUserDocument, IUserModel } from './types/user'
+
+const InvitedUserSchema: Schema = new Schema<IInvitedUserDocument, IInvitedUserModel>(
+  {
+    ...BaseModelSchema.obj,
+    uid: {
+      type: String,
+      auto: true,
+      unique: true,
+      default: () => {
+        return getModelUID('inv_user')
+      },
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: [true, 'A User account with this email already exists.'],
+      lowercase: true,
+      dropDups: true,
+    },
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+)
 
 const UserSchema: Schema = new Schema<IUserDocument, IUserModel>(
   {
@@ -27,6 +58,16 @@ const UserSchema: Schema = new Schema<IUserDocument, IUserModel>(
       unique: [true, 'User account with this email already exists.'],
       lowercase: true,
       dropDups: true,
+    },
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      required: false,
+    },
+    userType: {
+      type: String,
+      enum: [UserTypes.INDIVIDUAL, UserTypes.ORGANIZATION],
+      required: true,
     },
     profileImage: String,
     password: {
@@ -124,3 +165,7 @@ UserSchema.methods.isUserVerified = async function (this: IUserDocument) {
 }
 
 export const User = model<IUserDocument, IUserModel>('User', UserSchema)
+export const InvitedUser = model<IInvitedUserDocument, IInvitedUserModel>(
+  'InvitedUser',
+  InvitedUserSchema
+)

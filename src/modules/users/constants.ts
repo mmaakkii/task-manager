@@ -3,6 +3,11 @@ export enum UserIdentifierType {
   EMAIL = 'email',
 }
 
+export enum UserTypes {
+  INDIVIDUAL = 'IndividualUser',
+  ORGANIZATION = 'OrganizationUser',
+}
+
 export enum AuthErrors {
   INACTIVE = 'No active user found with provided credentials',
   USER_NOT_VERIFIED = 'Email address belonging to user not verified.',

@@ -19,6 +19,7 @@ export interface ITag extends IBaseModel {
 export interface ITask extends IBaseModel {
   title: string
   description: string
+  currentStatus: string
   assignee: IUserDocument
   media: Array<string>
   dueDate: Date
@@ -27,12 +28,21 @@ export interface ITask extends IBaseModel {
   linkedTasks: Array<ITask>
   subTasks: Array<ITask>
   collaborators: Array<IUserDocument>
+  taskList: ITaskListDocument
+}
+
+export interface ITaskList extends IBaseModel {
+  title: string
+  owner: string
+  ownerType: string
+  showOnBoard: boolean
 }
 
 export interface ITaskDocument extends ITask, Document {
   getCollaboratorsNames: () => Array<string>
 }
 
-export interface ITaskModel extends Model<ITaskDocument> {
-  getAssignee: string
-}
+export interface ITaskListDocument extends ITaskList, Document {}
+
+export interface ITaskListModel extends Model<ITaskListDocument> {}
+export interface ITaskModel extends Model<ITaskDocument> {}

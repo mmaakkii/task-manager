@@ -43,7 +43,6 @@ export class Factory implements IFactory {
   serverError(error: any, errorType: string) {
     this.responseObj.errors[errorType] = error.message
     this.responseObj.data = undefined
-    this.responseObj.statusCode = 500
     return this.responseObj
   }
 
@@ -113,6 +112,7 @@ export class Factory implements IFactory {
         new: true,
       })
       if (doc) {
+        // doc.save()
         return this.success(doc)
       }
       return this.doesNotExists()
