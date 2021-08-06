@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 import { model, Schema, HookNextFunction } from 'mongoose'
 import { BaseModelSchema } from 'src/global/Models'
 
@@ -83,7 +85,7 @@ const UserSchema: Schema = new Schema<IUserDocument, IUserModel>(
     signUpTokenExpires: Date,
     isVerified: {
       type: Boolean,
-      default: false,
+      default: true,
       select: false,
     },
     isActive: {

@@ -9,11 +9,12 @@ import AppError from 'src/global/appError'
 import { createSendToken, createUserResponse, decodeToken, getUserById } from './utils'
 import { createUserAccountSchema, loginSchema } from './validators'
 import { IUserDocument, GetUserByParam } from './types/user'
-import { AuthErrors, UserIdentifierType } from './constants'
+import { AuthErrors, UserIdentifierType, UserTypes } from './constants'
 
 export const createAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { body } = req
+    let { body } = req
+    body.userType = UserTypes.INDIVIDUAL
     const isValid = createUserAccountSchema.validate(body)
     if (isValid.error) {
       return next(new AppError(unescape(isValid.error.message), 400))
