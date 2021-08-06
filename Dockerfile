@@ -13,4 +13,4 @@ RUN npm install
 COPY . .
 
 #  Default command
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:dev" "-e", "production"]
