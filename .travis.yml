@@ -6,8 +6,8 @@ services:
 before_install:
   - docker build -t makkii/task-manager -f Dockerfile .
 
-script:
-  - docker run -e CI=true makkii/task-manager
+# script:
+#   - docker run -e CI=true makkii/task-manager
 
 deploy:
   provider: elasticbeanstalk
